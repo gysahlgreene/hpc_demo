@@ -8,8 +8,7 @@ them, and compare the output with the explanations in the guide.
 
 ## Quick Start
 
-Open a terminal on Boole, for example through **Boole Shell Access** in Open
-OnDemand:
+Open a terminal on Boole, for example through **Boole Shell Access** in the CloudCIX dashboard, and run:
 
 ```bash
 git clone <repository-url>
