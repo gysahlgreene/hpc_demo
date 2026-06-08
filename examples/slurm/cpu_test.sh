@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -l
 #SBATCH --job-name=cpu_test
 #SBATCH --output=cpu_test_%j.out
 #SBATCH --partition=physical
@@ -10,6 +10,13 @@ set -euo pipefail
 
 SUBMIT_DIR="${SLURM_SUBMIT_DIR:-$PWD}"
 cd "$SUBMIT_DIR"
+
+unset -f module ml 2>/dev/null || true
+if [[ -r /etc/profile.d/lmod.sh ]]; then
+  source /etc/profile.d/lmod.sh
+elif [[ -r /usr/share/lmod/lmod/init/bash ]]; then
+  source /usr/share/lmod/lmod/init/bash
+fi
 
 module purge
 module unuse /opt/spack/spack/share/spack/lmod/linux-ubuntu22.04-x86_64/Core

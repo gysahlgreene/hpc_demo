@@ -57,8 +57,8 @@ git pull
    cat gpu_test_<jobid>.out
    ```
 
-   The GPU job loads the Ubuntu 24.04 Spack module tree and `cuda/12.9.0`,
-   then prints `nvidia-smi` and `nvcc --version`.
+   The GPU job prints `nvidia-smi` and `nvcc --version` from the allocated GPU
+   node.
 
 6. Explore the container example when that topic comes up in the presentation.
 

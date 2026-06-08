@@ -71,6 +71,9 @@ type of hardware or workload.
 Slurm also records the directory where you ran `sbatch` as `SLURM_SUBMIT_DIR`.
 The example scripts in this repository change into that directory before doing
 work, so generated files and relative paths are easier to reason about.
+Scripts that load software modules run under a login shell and reset the
+inherited `module` function before selecting the Ubuntu 24.04 Spack module
+tree.
 
 > **Important: Default Resource Allocation**
 >
@@ -137,8 +140,7 @@ srun --partition=physical-gpu --gres=gpu:1 --cpus-per-task=4 --mem=16G --time=01
 ```
 
 The runnable batch script is `examples/gpu/gpu_test.sh`.
-It loads the Ubuntu 24.04 Spack module tree, loads `cuda/12.9.0`, then prints
-both `nvidia-smi` and `nvcc --version`.
+It prints both `nvidia-smi` and `nvcc --version` from the allocated GPU node.
 
 Submit it:
 
