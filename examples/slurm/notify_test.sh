@@ -10,7 +10,11 @@
 
 set -euo pipefail
 
+SUBMIT_DIR="${SLURM_SUBMIT_DIR:-$PWD}"
+cd "$SUBMIT_DIR"
+
 echo "Job running on $(hostname)"
+echo "Submit directory: ${SUBMIT_DIR}"
 echo "Replace --mail-user before using this in a real workshop account."
 sleep 60
 echo "Job finished."

@@ -59,6 +59,14 @@ cd examples/mpi
 sbatch mpi_demo.slurm
 ```
 
+The MPI batch script loads the required `openmpi`, `python`, and `py-mpi4py`
+modules before running. If `mpi4py` is missing, check the module names with:
+
+```bash
+module spider mpi4py
+module spider openmpi
+```
+
 After it completes:
 
 ```bash

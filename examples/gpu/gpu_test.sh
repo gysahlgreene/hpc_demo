@@ -9,10 +9,14 @@
 
 set -euo pipefail
 
+SUBMIT_DIR="${SLURM_SUBMIT_DIR:-$PWD}"
+cd "$SUBMIT_DIR"
+
 module load cuda/12.9.0
 
 echo "Running on host: $(hostname)"
 echo "Job ID: ${SLURM_JOB_ID:-not-running-under-slurm}"
+echo "Submit directory: ${SUBMIT_DIR}"
 echo "CUDA visible devices: ${CUDA_VISIBLE_DEVICES:-not set}"
 
 nvidia-smi

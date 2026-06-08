@@ -47,6 +47,9 @@ git pull
    cat mpi-demo-*.out
    ```
 
+   The MPI job loads `openmpi/5.0.5`, `python/3.11.9`, and
+   `py-mpi4py/4.0.1` inside the batch script.
+
 5. If GPU nodes are available to you, submit the GPU example:
 
    ```bash
@@ -89,6 +92,10 @@ The examples request modest resources, but cluster availability changes during
 the day. If a job sits pending, try the troubleshooting section in the guide:
 check `sinfo`, reduce resources, shorten the time limit, or use a different
 partition where appropriate.
+
+The Slurm scripts use `SLURM_SUBMIT_DIR`, which is the directory where you ran
+`sbatch`. Submit from the repo root or from the example directory shown in the
+workshop flow.
 
 Do not put credentials in this repository. Object storage examples use
 placeholders for access keys, bucket names, and endpoints.

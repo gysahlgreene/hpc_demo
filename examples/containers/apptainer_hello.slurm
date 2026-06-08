@@ -8,9 +8,14 @@
 
 set -euo pipefail
 
-IMAGE="hello-world_latest.sif"
+SUBMIT_DIR="${SLURM_SUBMIT_DIR:-$PWD}"
+cd "$SUBMIT_DIR"
+
+IMAGE="${SUBMIT_DIR}/hello-world_latest.sif"
 
 echo "Running on host: $(hostname)"
+echo "Submit directory: ${SUBMIT_DIR}"
+echo "Container image: ${IMAGE}"
 
 if [[ ! -f "$IMAGE" ]]; then
   apptainer pull docker://hello-world

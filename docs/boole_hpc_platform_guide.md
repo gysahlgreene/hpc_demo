@@ -70,6 +70,10 @@ Use:
 Jobs are submitted to **partitions**. A partition is a queue for a particular
 type of hardware or workload.
 
+Slurm also records the directory where you ran `sbatch` as `SLURM_SUBMIT_DIR`.
+The example scripts in this repository change into that directory before doing
+work, so generated files and relative paths are easier to reason about.
+
 > **Important: Default Resource Allocation**
 >
 > The default resource allocation is **1 CPU and 1 GB of memory per node**.
@@ -162,11 +166,17 @@ Ensure the following are available:
 - OpenMPI or another MPI implementation
 - `mpi4py`
 
-If `mpi4py` is not already installed, it can be installed with:
+On Boole, the example Slurm script loads the expected modules for you:
 
 ```bash
-pip install --user mpi4py
+module purge
+module load openmpi/5.0.5
+module load python/3.11.9
+module load py-mpi4py/4.0.1
 ```
+
+If you are testing `mpi_hello.py` manually outside the Slurm script, load those
+modules first.
 
 #### Create the MPI Application
 
@@ -183,6 +193,8 @@ It:
 The runnable Slurm script is `examples/mpi/mpi_demo.slurm`.
 
 This configuration launches a total of **8 MPI ranks** across **2 nodes**.
+The script loads `openmpi/5.0.5`, `python/3.11.9`, and `py-mpi4py/4.0.1` before
+calling `mpirun`.
 
 #### Submit the MPI Job
 
