@@ -12,6 +12,8 @@ SUBMIT_DIR="${SLURM_SUBMIT_DIR:-$PWD}"
 cd "$SUBMIT_DIR"
 
 module purge
+module unuse /opt/spack/spack/share/spack/lmod/linux-ubuntu22.04-x86_64/Core
+module use /opt/spack/spack/share/spack/lmod/linux-ubuntu24.04-x86_64/Core
 module load openmpi/5.0.5
 module load python/3.11.9
 module load py-mpi4py/4.0.1

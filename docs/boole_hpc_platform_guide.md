@@ -5,7 +5,6 @@
 - [Introduction](#introduction)
 - [Slurm Basics](#slurm-basics)
 - [Conda / Miniforge](#conda--miniforge)
-- [Accessing Object Storage from the Boole HPC Platform](#accessing-object-storage-from-the-boole-hpc-platform)
 - [Running Docker Images with Apptainer on HPC](#running-docker-images-with-apptainer-on-hpc)
 - [Quick Reference](#quick-reference)
 - [Troubleshooting](#troubleshooting)
@@ -15,8 +14,7 @@
 
 The **Boole High Performance Computing (HPC) Platform** is operated by
 **CloudCIX**. It provides compute resources for interactive data exploration,
-batch processing, parallel workloads, GPU jobs, containers, and object storage
-access.
+batch processing, parallel workloads, GPU jobs, and containers.
 
 Use this guide as a practical starting point for:
 
@@ -24,7 +22,7 @@ Use this guide as a practical starting point for:
 - Running interactive and batch Slurm jobs.
 - Running CPU, GPU, and MPI examples.
 - Loading software modules and managing Python environments.
-- Using object storage and Apptainer containers.
+- Using Apptainer containers.
 
 ### Access Methods
 
@@ -139,6 +137,8 @@ srun --partition=physical-gpu --gres=gpu:1 --cpus-per-task=4 --mem=16G --time=01
 ```
 
 The runnable batch script is `examples/gpu/gpu_test.sh`.
+It loads the Ubuntu 24.04 Spack module tree, loads `cuda/12.9.0`, then prints
+both `nvidia-smi` and `nvcc --version`.
 
 Submit it:
 
@@ -170,6 +170,8 @@ On Boole, the example Slurm script loads the expected modules for you:
 
 ```bash
 module purge
+module unuse /opt/spack/spack/share/spack/lmod/linux-ubuntu22.04-x86_64/Core
+module use /opt/spack/spack/share/spack/lmod/linux-ubuntu24.04-x86_64/Core
 module load openmpi/5.0.5
 module load python/3.11.9
 module load py-mpi4py/4.0.1
@@ -326,6 +328,8 @@ module spider gcc
 Load a module:
 
 ```bash
+module unuse /opt/spack/spack/share/spack/lmod/linux-ubuntu22.04-x86_64/Core
+module use /opt/spack/spack/share/spack/lmod/linux-ubuntu24.04-x86_64/Core
 module load gcc-runtime/13.2.0
 ```
 
@@ -439,53 +443,6 @@ conda env remove --name my_env
 - Keep separate environments for different projects to avoid package conflicts.
 - Avoid installing packages directly into the base Conda environment; use named
   environments instead.
-
-## Accessing Object Storage from the Boole HPC Platform
-
-`s3cmd` is available to all users in the cluster for accessing S3-compatible
-object storage services.
-
-### Configure s3cmd
-
-```bash
-s3cmd --configure
-```
-
-When prompted, enter the following configuration details:
-
-```text
-Access Key: <your access key>
-Secret Key: <your secret access key>
-Default Region: <your default region>
-S3 Endpoint: <your S3 endpoint>
-DNS-style: no
-Encryption password: [Press Enter]
-Path to GPG program: [Press Enter]
-Use HTTPS protocol: [Press Enter]
-HTTP Proxy server name: [Press Enter]
-Save settings? [y/N] y
-```
-
-### Example: CloudCIX Object Storage Configuration
-
-Configuring `s3cmd` to use **CloudCIX Object Storage**:
-
-```text
-Access Key: <your access key>
-Secret Key: <your secret access key>
-Default Region: boole-zonegroup
-S3 Endpoint: s3-boole.cloudcix.com
-DNS-style: no
-Encryption password: [Press Enter]
-Path to GPG program: [Press Enter]
-Use HTTPS protocol: [Press Enter]
-HTTP Proxy server name: [Press Enter]
-Save settings? [y/N] y
-```
-
-### Basic Usage Examples
-
-The runnable command reference is `examples/object-storage/s3cmd_examples.sh`.
 
 ## Running Docker Images with Apptainer on HPC
 

@@ -11,6 +11,9 @@ set -euo pipefail
 SUBMIT_DIR="${SLURM_SUBMIT_DIR:-$PWD}"
 cd "$SUBMIT_DIR"
 
+module purge
+module unuse /opt/spack/spack/share/spack/lmod/linux-ubuntu22.04-x86_64/Core
+module use /opt/spack/spack/share/spack/lmod/linux-ubuntu24.04-x86_64/Core
 module load gcc-runtime/13.2.0
 
 echo "Running on host: $(hostname)"

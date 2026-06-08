@@ -57,8 +57,10 @@ git pull
    cat gpu_test_<jobid>.out
    ```
 
-6. Explore the container and object storage examples when those topics come up
-   in the presentation.
+   The GPU job loads the Ubuntu 24.04 Spack module tree and `cuda/12.9.0`,
+   then prints `nvidia-smi` and `nvcc --version`.
+
+6. Explore the container example when that topic comes up in the presentation.
 
 ## Repository Layout
 
@@ -70,7 +72,6 @@ git pull
 │   ├── containers/
 │   ├── gpu/
 │   ├── mpi/
-│   ├── object-storage/
 │   └── slurm/
 └── exercises/
 ```
@@ -97,5 +98,4 @@ The Slurm scripts use `SLURM_SUBMIT_DIR`, which is the directory where you ran
 `sbatch`. Submit from the repo root or from the example directory shown in the
 workshop flow.
 
-Do not put credentials in this repository. Object storage examples use
-placeholders for access keys, bucket names, and endpoints.
+Do not put credentials in this repository.

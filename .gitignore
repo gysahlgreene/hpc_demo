@@ -17,12 +17,9 @@ env/
 *.sif
 
 # Example-generated files
-file.txt
-downloaded-file.txt
 Miniforge3-*.sh
 
 # Local credential files
-.s3cfg
 *.pem
 *.key
 
