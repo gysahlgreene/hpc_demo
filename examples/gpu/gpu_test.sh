@@ -15,7 +15,6 @@ cd "$SUBMIT_DIR"
 echo "Running on host: $(hostname)"
 echo "Job ID: ${SLURM_JOB_ID:-not-running-under-slurm}"
 echo "Submit directory: ${SUBMIT_DIR}"
-echo "CUDA visible devices: ${CUDA_VISIBLE_DEVICES:-not set}"
 
 nvidia-smi
 nvcc --version
