@@ -13,7 +13,8 @@ cd "$SCRIPT_DIR"
 
 echo "Running MPI demo"
 echo "Job ID: ${SLURM_JOB_ID}"
+echo "MPI application: ${SCRIPT_DIR}/mpi_hello.py"
 echo "Nodes allocated:"
 scontrol show hostnames "$SLURM_JOB_NODELIST"
 
-mpirun python3 mpi_hello.py
+mpirun python3 "${SCRIPT_DIR}/mpi_hello.py"
