@@ -1,6 +1,6 @@
 #!/bin/bash -l
 #SBATCH --job-name=mpi-demo
-#SBATCH --partition=physical
+#SBATCH --partition=cloud
 #SBATCH --nodes=2
 #SBATCH --ntasks-per-node=4
 #SBATCH --time=00:05:00
