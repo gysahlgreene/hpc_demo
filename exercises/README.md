@@ -17,7 +17,37 @@ Questions:
 * Which nodes are idle, allocated, or down?
 * Where would a small CPU test job fit best?
 
-## Exercise 2: Submit a CPU Job
+## Exercise 2: Start an Interactive Job
+
+Request a short interactive shell on a compute node:
+
+```bash
+srun --partition=cloud --cpus-per-task=2 --mem=4G --time=00:15:00 --pty bash
+```
+
+Once the prompt changes, run:
+
+```bash
+hostname
+echo "SLURM_JOB_ID=$SLURM_JOB_ID"
+echo "SLURM_JOB_NODELIST=$SLURM_JOB_NODELIST"
+pwd
+ls -la "$HOME"
+```
+
+Questions:
+
+* Did `hostname` change from the login node?
+* Can you see the same home directory contents from the compute node?
+* What job ID did Slurm assign to the interactive session?
+
+Leave the interactive job:
+
+```bash
+exit
+```
+
+## Exercise 3: Submit a CPU Job
 
 Submit:
 
@@ -35,7 +65,7 @@ cat cpu_test_<jobid>.out
 Change one resource request in the script, such as `--cpus-per-task` or
 `--mem`, then submit it again.
 
-## Exercise 3: Read a Job Record
+## Exercise 4: Read a Job Record
 
 Pick one completed job ID and run:
 
@@ -50,7 +80,7 @@ Questions:
 * How long did it run?
 * Did it use close to the memory requested?
 
-## Exercise 4: Run MPI
+## Exercise 5: Run MPI
 
 From the MPI example directory:
 
@@ -75,7 +105,7 @@ cat mpi-demo-*.out
 
 Change `--ntasks-per-node` and observe how the rank count changes.
 
-## Exercise 5: Try a Container
+## Exercise 6: Try a Container
 
 Submit:
 
