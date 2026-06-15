@@ -46,4 +46,5 @@ echo "Nodes allocated:"
 scontrol show hostnames "$SLURM_JOB_NODELIST"
 echo
 
-mpirun python3 "$MPI_APP"
+export PMIX_MCA_psec=native
+srun --mpi=pmix_v5 -n "$SLURM_NTASKS" python3 "$MPI_APP"
