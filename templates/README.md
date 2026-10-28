@@ -10,6 +10,7 @@ marked `CHANGE`.
 | One program using several cores (multiprocessing, joblib, OpenMP, R `parallel`) | [multicore.slurm](multicore.slurm) | [Many Cores on One Node](../docs/parallel_computing_guide.md#4-many-cores-on-one-node) |
 | The same program on many input files or parameters | [array_files.slurm](array_files.slurm) | [Job Arrays](../docs/parallel_computing_guide.md#5-many-independent-jobs-job-arrays) |
 | An MPI program across nodes | [mpi.slurm](mpi.slurm) | [MPI](../docs/parallel_computing_guide.md#6-many-nodes-mpi) |
+| Your own OpenFOAM case, in parallel | [openfoam.slurm](openfoam.slurm) | [OpenFOAM Guide](../docs/openfoam_guide.md) |
 | Training or inference on a GPU | [gpu.slurm](gpu.slurm) | [GPU Guide](../docs/gpu_guide.md) |
 | A program in your own Conda environment | [conda.slurm](conda.slurm) | [Conda / Miniforge](../docs/boole_hpc_platform_guide.md#conda--miniforge) |
 

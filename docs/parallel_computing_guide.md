@@ -362,6 +362,10 @@ shows what that costs.
 Both programs print a `RESULT` line whose `value` must be the same however
 many ranks you use. If it changes, the work is being split wrongly.
 
+Real simulation codes work the same way. The
+[OpenFOAM Guide](openfoam_guide.md) runs a CFD case split across MPI ranks,
+with measurements of how far it scales on Boole.
+
 ## 7. Scaling: Does More Cores Mean Faster?
 
 Run the same problem on `p` ranks and compare with one rank:

@@ -36,9 +36,9 @@ yourself.
 | --- | --- | --- |
 | 1. Slurm basics | 1-4 | 45 min |
 | 2. Using many cores | 5-7 | 40 min |
-| 3. MPI and scaling | 8-11 | 50 min |
-| 4. GPUs, containers and interactive apps (optional) | 12-14 | 30 min |
-| 5. Your own work | 15 | 15 min |
+| 3. MPI, scaling and OpenFOAM | 8-12 | 65 min |
+| 4. GPUs, containers and interactive apps (optional) | 13-15 | 30 min |
+| 5. Your own work | 16 | 15 min |
 
 When the whole room submits at once, jobs may wait a few minutes in the
 queue. Read the next section while you wait.
@@ -481,7 +481,74 @@ Questions:
 
 </details>
 
-### Exercise 11 (Stretch): Point-to-Point Messages
+### Exercise 11: OpenFOAM in Parallel (15 min)
+
+Read first: the [OpenFOAM Guide](../docs/openfoam_guide.md).
+
+Run the lid-driven cavity on 8 ranks of one node:
+
+```bash
+sbatch examples/openfoam/cavity.slurm
+```
+
+It takes about 10 seconds once it starts. Then:
+
+```bash
+cat openfoam-cavity-<jobid>.out
+ls openfoam-cavity-<jobid>/ranks-8
+```
+
+```text
+Mesh 200 x 200 = 40000 cells, 100 time steps. Cases in /home/<you>/hpc_demo/openfoam-cavity-<jobid>
+
+8 ranks on 1 node(s): 7.3 s   (Courant Number mean: 0.100853 max: 0.49187)
+```
+
+Now run a mesh four times smaller:
+
+```bash
+sbatch --export=ALL,MESH=100 examples/openfoam/cavity.slurm
+```
+
+The scaling study across all four `physical` nodes is an instructor demo;
+its tables are in the [OpenFOAM Guide](../docs/openfoam_guide.md#how-well-does-it-scale).
+
+```bash
+# Instructor only: these take the whole physical partition for about 10 minutes.
+# sbatch --nodes=4 examples/openfoam/cavity.slurm 1 2 4 8 16 32
+# sbatch --nodes=4 --export=ALL,MESH=300 examples/openfoam/cavity.slurm 1 2 4 8 16 32
+```
+
+Questions:
+
+1. What is in the `ranks-8` folder, and why are there 8 `processor` folders?
+2. How many cells did each rank get with `MESH=100`? Was it much faster
+   than with 200?
+3. In the scaling tables, why did 16 ranks on 2 nodes run slower than 8
+   ranks on 1 node?
+4. You have a 2-million-cell case. How would you choose how many ranks and
+   nodes to use?
+
+<details>
+<summary>Answers</summary>
+
+1. The case: `0` (start), `0.025` (the result after 100 time steps),
+   `constant`, `system`, a log for each step, and `processor0` to
+   `processor7`. `decomposePar` split the mesh into one piece per MPI rank,
+   and each rank read and wrote only its own piece.
+2. 10,000 cells / 8 ranks = 1,250 each. It took about 2 seconds instead of
+   about 7: four times fewer cells, but not four times less communication.
+3. The pressure solver exchanges data hundreds of times per time step, and
+   each message between nodes takes about 30 times longer than within a
+   node. The extra waiting outweighs the extra cores.
+4. Measure: run a few time steps on 8 ranks (one node) and on 16 (two
+   nodes), and keep the fastest that is still efficient. At 2 million cells
+   you'd have 250,000 cells per rank on one node, so a second node *might*
+   help, but on Boole today, check before assuming.
+
+</details>
+
+### Exercise 12 (Stretch): Point-to-Point Messages
 
 Copy the pi program:
 
@@ -525,7 +592,7 @@ steps.
 
 ## Part 4: GPUs, Containers and Interactive Apps (Optional)
 
-### Exercise 12: Size a GPU Job
+### Exercise 13: Size a GPU Job
 
 Read first: the [GPU Guide](../docs/gpu_guide.md).
 
@@ -569,7 +636,7 @@ Questions:
 
 </details>
 
-### Exercise 13: Try a Container
+### Exercise 14: Try a Container
 
 Read first: [Running Docker Images with Apptainer](../docs/boole_hpc_platform_guide.md#running-docker-images-with-apptainer).
 
@@ -584,7 +651,7 @@ into `hello-world_latest.sif` in `~/hpc_demo`, and the next run reuses that
 file instead of downloading it again. The `WARNING: passwd file doesn't
 exist` lines are harmless.
 
-### Exercise 14: Size an Interactive Session
+### Exercise 15: Size an Interactive Session
 
 Read first: [Interactive Apps in Open OnDemand](../docs/ondemand_guide.md).
 
@@ -633,7 +700,7 @@ Questions:
 
 ## Part 5: Your Own Work
 
-### Exercise 15: Adapt a Template
+### Exercise 16: Adapt a Template
 
 Read first: [templates/README.md](../templates/README.md).
 

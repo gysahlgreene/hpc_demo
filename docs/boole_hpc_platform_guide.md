@@ -6,6 +6,7 @@
 - [Slurm Basics](#slurm-basics)
   - [Your First Batch Job](#your-first-batch-job)
 - [Parallel Computing Guide](parallel_computing_guide.md) (separate page)
+- [OpenFOAM Guide](openfoam_guide.md) (separate page)
 - [GPU Guide](gpu_guide.md) (separate page)
 - [Interactive Apps in Open OnDemand](ondemand_guide.md) (separate page)
 - [Loading Software with Modules](#loading-software-with-modules)
