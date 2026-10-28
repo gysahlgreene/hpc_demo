@@ -27,16 +27,21 @@ but the ideas apply to any language.
 | 6 | Run MPI programs across nodes with `srun`, check where ranks run, and pass messages between them | [§6](docs/parallel_computing_guide.md#6-many-nodes-mpi) | 8, 11 |
 | 7 | Measure speedup and efficiency, and choose how many cores to use | [§7](docs/parallel_computing_guide.md#7-scaling-does-more-cores-mean-faster) | 9 |
 | 8 | Lay out hybrid jobs (MPI ranks x threads), and know when they pay off | [§8](docs/parallel_computing_guide.md#8-hybrid-mpi-and-threads) | 10 |
-| 9 | Run a GPU job and an Apptainer container (optional) | [GPU](docs/boole_hpc_platform_guide.md#batch-gpu-job), [containers](docs/boole_hpc_platform_guide.md#running-docker-images-with-apptainer) | 12, 13 |
+| 9 | Size a GPU job so the GPU stays busy without holding a whole node, and run a container | [GPU guide](docs/gpu_guide.md), [containers](docs/boole_hpc_platform_guide.md#running-docker-images-with-apptainer) | 12, 13 |
+| 10 | Size Jupyter, VS Code and other interactive sessions, and end them when done | [Open OnDemand guide](docs/ondemand_guide.md) | 14 |
+| 11 | Turn your own work into a job script from a template | [templates](templates/README.md) | 15 |
 
-The core of the workshop is rows 2-8: **getting the most out of the CPUs you
-request.** Asking for more cores never makes a program faster by itself. These
+The core of the workshop is rows 2-8: **getting the most out of the CPUs and
+memory you request.** Rows 9-10 apply the same idea to GPUs and to
+interactive sessions; they are optional in the workshop but important if you
+use either. Asking for more cores never makes a program faster by itself. These
 sections show how to make your work actually use them, and how to check that
 it does.
 
 ## Not Covered
 
-- Writing or optimising numerical code, or GPU programming (CUDA, PyTorch).
+- Writing or optimising numerical code, or GPU programming itself (CUDA, or
+  how to use PyTorch; the GPU guide only covers sizing GPU jobs).
 - Compiled languages such as C, C++ or Fortran. The ideas carry over, but the
   examples are Python.
 - Managing or administering the cluster.
@@ -56,7 +61,8 @@ it does.
    If you cloned it before, update it instead with
    `cd ~/hpc_demo && git pull`. If `git pull` complains about local changes,
    run `git stash` and then `git pull` again.
-3. Allow about two and a half hours, including reading.
+3. Allow about three hours, including reading. Parts 4 and 5 of the
+   exercises are optional.
 4. Open [exercises/README.md](exercises/README.md) and work through it in
    order. Each exercise links to the part of the guides to read first.
 
@@ -79,6 +85,8 @@ Run every command from `~/hpc_demo`. Output files appear there.
 | **Task / rank** | One copy of your program started by Slurm. In MPI it is called a rank. |
 | **MPI** | The standard way for processes on different nodes to cooperate by sending messages. |
 | **Speedup / efficiency** | How many times faster with N cores / speedup divided by N (100% is perfect). |
+| **Python virtual environment (venv)** | A folder holding its own Python packages, switched on with `source <folder>/bin/activate`. |
+| **Data-loader worker** | A process that prepares training data on the CPU while the GPU trains. |
 
 ## Repository Layout
 
@@ -86,13 +94,16 @@ Run every command from `~/hpc_demo`. Output files appear there.
 .
 ├── docs/
 │   ├── boole_hpc_platform_guide.md   # Slurm basics, modules, GPUs, containers
-│   └── parallel_computing_guide.md   # cores, arrays, MPI, scaling, efficiency
+│   ├── parallel_computing_guide.md   # cores, arrays, MPI, scaling, efficiency
+│   ├── gpu_guide.md                  # sizing and checking GPU jobs
+│   └── ondemand_guide.md             # sizing interactive sessions
 ├── examples/
 │   ├── slurm/        # first batch job, email notification
 │   ├── multicore/    # one node, many cores; job arrays
 │   ├── mpi/          # MPI demo, scaling study, hybrid job
-│   ├── gpu/
+│   ├── gpu/          # GPU test, PyTorch setup, data-loader sweep
 │   └── containers/
+├── templates/        # job scripts to copy for your own work
 └── exercises/
     └── README.md     # start here
 ```
@@ -117,7 +128,13 @@ The cluster has 2 `cloud` nodes (16 cores), 4 `physical` nodes (32 cores) and
   minute per run. Run it yourself as a demo and share the output.
 - Exercise 10 runs use 2 `physical` nodes each. Have each table split the
   layouts between them.
-- Exercise 12 needs a GPU, and there are only two.
+- Exercise 12's GPU sweep needs a GPU for about a minute, and there are
+  only two: run it as a demo. Students who want to run it later first need
+  `bash examples/gpu/setup_torch_env.sh` (about 3 minutes and 5.5 GB in their
+  home directory); ask them to do that before the session.
+- Exercise 14 is done in the Open OnDemand web page. Even at 1 core each,
+  the `cloud` partition fits 16 sessions at once, so expect a short queue
+  with a full room.
 - Everything else is small, but expect some queueing when 20 people submit
   at once.
 - Every script, command and exercise answer was tested on Boole in October

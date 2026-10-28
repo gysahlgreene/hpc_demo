@@ -18,6 +18,11 @@ env/
 
 # Example-generated files
 Miniforge3-*.sh
+gpu-usage-*.csv
+inputs.txt
+mydata/
+my_array.slurm
+examples/mpi/my_pi.py
 
 # Local credential files
 *.pem

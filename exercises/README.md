@@ -37,7 +37,8 @@ yourself.
 | 1. Slurm basics | 1-4 | 45 min |
 | 2. Using many cores | 5-7 | 40 min |
 | 3. MPI and scaling | 8-11 | 50 min |
-| 4. Optional: GPU and containers | 12-13 | 15 min |
+| 4. GPUs, containers and interactive apps (optional) | 12-14 | 30 min |
+| 5. Your own work | 15 | 15 min |
 
 When the whole room submits at once, jobs may wait a few minutes in the
 queue. Read the next section while you wait.
@@ -522,12 +523,13 @@ steps.
 
 ---
 
-## Part 4: Optional
+## Part 4: GPUs, Containers and Interactive Apps (Optional)
 
-### Exercise 12: A GPU Job
+### Exercise 12: Size a GPU Job
 
-Read first: [Batch GPU Job](../docs/boole_hpc_platform_guide.md#batch-gpu-job).
-There are only 2 GPUs in the cluster, so take turns.
+Read first: the [GPU Guide](../docs/gpu_guide.md).
+
+There are only 2 GPUs, so take turns. First check you can reach one:
 
 ```bash
 sbatch examples/gpu/gpu_test.sh
@@ -536,6 +538,36 @@ cat gpu_test_<jobid>.out
 
 You should see an `NVIDIA A100-SXM4-80GB` in the `nvidia-smi` table, and
 `Cuda compilation tools, release 12.0` from `nvcc`.
+
+The data-loader sweep needs a GPU for about a minute, plus queueing, so
+**the instructor runs it** (you can run it yourself later, after
+`bash examples/gpu/setup_torch_env.sh`). The output is in the
+[GPU Guide](../docs/gpu_guide.md#how-many-cpus-does-a-gpu-job-need).
+
+```bash
+# Instructor, or later on your own:
+# sbatch examples/gpu/gpu_dataloader.slurm
+# sbatch --cpus-per-task=4 examples/gpu/gpu_dataloader.slurm
+```
+
+Questions:
+
+1. With 0 data-loader workers, how busy was the GPU, and why?
+2. How many CPUs should a job like this request, and why not 64?
+3. What happened with only 4 CPUs?
+
+<details>
+<summary>Answers</summary>
+
+1. About 15%. Every batch was prepared by the main process on one CPU core,
+   and the GPU waited for it most of the time.
+2. About 9: 8 workers plus the main process. Throughput stopped rising at 8
+   workers (15 were no faster), so more CPUs would sit idle. The GPU node's
+   other cores and memory can then run other people's jobs.
+3. With 3 workers it reached about 7,300 images/s, less than half the speed
+   with 8. Too few CPUs leave the GPU waiting.
+
+</details>
 
 ### Exercise 13: Try a Container
 
@@ -551,3 +583,113 @@ The output includes `Hello from Docker!`. The job converted the Docker image
 into `hello-world_latest.sif` in `~/hpc_demo`, and the next run reuses that
 file instead of downloading it again. The `WARNING: passwd file doesn't
 exist` lines are harmless.
+
+### Exercise 14: Size an Interactive Session
+
+Read first: [Interactive Apps in Open OnDemand](../docs/ondemand_guide.md).
+
+1. In [Open OnDemand](https://hpc.cloudcix.com), launch **Jupyter Notebook**
+   with Partition **Cloud Compute**, **1** CPU core, **2** GB RAM and
+   **1** hour.
+2. When it starts, connect, open a new notebook and run:
+
+   ```python
+   import os
+   print(os.cpu_count(), len(os.sched_getaffinity(0)), os.environ.get("SLURM_JOB_ID"))
+   ```
+
+3. Open a terminal (in Jupyter: **File → New → Terminal**) and run
+   `squeue -u $USER`.
+4. Go back to Open OnDemand, open **My Interactive Sessions**, and
+   **Delete** the session.
+5. In any terminal on Boole:
+
+   ```bash
+   sacct -u $USER -S today --name=sys/dashboard/sys/Jupyter \
+         --format=JobID,JobName%30,AllocCPUS,Elapsed,CPUTime,TotalCPU,State
+   ```
+
+Questions:
+
+1. How many CPUs does the node have, and how many could your notebook use?
+2. What did your session look like in `squeue`?
+3. What was the session's CPU efficiency (`TotalCPU / CPUTime`)? Why is it
+   low, and what does that tell you about how much to ask for?
+
+<details>
+<summary>Answers</summary>
+
+1. `os.cpu_count()` shows the whole node (8 on a `cloud` node), but the
+   affinity count is the 1 CPU you asked for.
+2. A running job (`R`) named `sys/dash...`, the start of
+   `sys/dashboard/sys/Jupyter`. The session is an ordinary Slurm job.
+3. Very low, probably a few percent. Most of an interactive session is
+   reading and typing, so its cores sit idle. Ask for the minimum, and move
+   heavy work into batch jobs.
+
+</details>
+
+---
+
+## Part 5: Your Own Work
+
+### Exercise 15: Adapt a Template
+
+Read first: [templates/README.md](../templates/README.md).
+
+Run one small program on many files using the job-array template. First make
+five sample input files and a list of them:
+
+```bash
+mkdir -p mydata
+for i in 1 2 3 4 5; do seq $((i * 100000)) > mydata/numbers_$i.txt; done
+ls mydata/*.txt > inputs.txt
+cat inputs.txt
+```
+
+Copy the template and open it in an editor:
+
+```bash
+cp templates/array_files.slurm my_array.slurm
+nano my_array.slurm
+```
+
+Leave the other `CHANGE` lines as they are for now. Go to the last line,
+`python3 my_script.py "$INPUT"`, delete it with Ctrl+K, and type this
+instead, which counts the lines of each file:
+
+```bash
+wc -l "$INPUT"
+```
+
+Save (Ctrl+O, Enter) and quit (Ctrl+X). Then submit one task per line of
+`inputs.txt`:
+
+```bash
+sbatch --array=1-$(wc -l < inputs.txt) my_array.slurm
+```
+
+When the tasks have finished:
+
+```bash
+cat my-array-<jobid>_*.out
+```
+
+Questions:
+
+1. How many array tasks ran, and what did each one print?
+2. How would you run your own analysis script on 200 data files, at most 10
+   at a time?
+
+<details>
+<summary>Answers</summary>
+
+1. Five, one per line of `inputs.txt`. Each printed its task number and file,
+   then the line count, e.g. `Task 3: mydata/numbers_3.txt` and
+   `300000 mydata/numbers_3.txt`.
+2. List the files (`ls data/*.csv > inputs.txt`), put your command on the
+   last line of the template (e.g. `python3 analyse.py "$INPUT"`), set the
+   memory and time for **one** file, and submit with
+   `sbatch --array=1-$(wc -l < inputs.txt)%10 my_array.slurm`.
+
+</details>

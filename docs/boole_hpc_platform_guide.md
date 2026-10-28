@@ -6,6 +6,8 @@
 - [Slurm Basics](#slurm-basics)
   - [Your First Batch Job](#your-first-batch-job)
 - [Parallel Computing Guide](parallel_computing_guide.md) (separate page)
+- [GPU Guide](gpu_guide.md) (separate page)
+- [Interactive Apps in Open OnDemand](ondemand_guide.md) (separate page)
 - [Loading Software with Modules](#loading-software-with-modules)
 - [Conda / Miniforge](#conda--miniforge) (optional)
 - [Running Docker Images with Apptainer](#running-docker-images-with-apptainer) (optional)
@@ -39,6 +41,10 @@ applications. Available apps include:
 | **VS Code Server** | Browser-based Visual Studio Code development environment. |
 | **ParaView** | Visualization and analysis for scientific datasets. |
 | **nf-core pipelines** | Bioinformatics workflow pipelines. |
+
+Each interactive app runs as a Slurm job that holds the cores, memory and GPU
+you choose until you end it. See
+[Interactive Apps in Open OnDemand](ondemand_guide.md) for what to request.
 
 You can also connect directly to the HPC system using SSH or transfer files via
 `rsync` **from HEAnet and CloudCIX IP addresses only**.
@@ -239,6 +245,9 @@ cat gpu_test_<jobid>.out
 Cuda compilation tools, release 12.0, V12.0.140
 ```
 
+To choose how many CPUs and how much memory to request with a GPU, and to
+check that the GPU is kept busy, see the [GPU Guide](gpu_guide.md).
+
 ### Parallel Jobs and MPI
 
 To use more than one core, or more than one node, see the
@@ -292,7 +301,11 @@ module list                 # what is loaded now
 ```
 
 The workshop examples use `python/3.11.9`, `openmpi/5.0.5`, `py-mpi4py/4.0.1`
-and `py-numpy/2.1.2`. Load `python` before Python packages such as
+and `py-numpy/2.1.2`.
+
+**The GPU nodes (`physical-gpu`) don't have the `module` command.** GPU jobs
+use a Python environment in your home directory instead; see the
+[GPU Guide](gpu_guide.md). Load `python` before Python packages such as
 `py-numpy`.
 
 In batch scripts, the lines before `module purge` in the examples (`unset -f`
