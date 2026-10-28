@@ -11,22 +11,23 @@ piece of the mesh and swaps boundary values with its neighbours.
 
 ## Setting Up OpenFOAM
 
-OpenFOAM v2412 is installed on Boole. **`module load` for OpenFOAM doesn't
-work at the moment** (one of its dependencies is registered under the wrong
-name), so load its MPI and then OpenFOAM's own setup script:
+OpenFOAM v2412 is installed on Boole. Programs that use MPI are listed
+*under* the MPI build they were compiled with, so `module avail` and
+`module load openfoam` only find OpenFOAM after you load that MPI:
 
 ```bash
-module load openmpi/5.0.5-vzxfkrh   # the MPI build OpenFOAM was compiled with
-set +u   # only needed in scripts using `set -u`: the setup script reads unset variables
-source /opt/spack/spack/opt/spack/linux-cascadelake/openfoam-2412-apc5rmqfcstzgka25loohisejf6flusj/etc/bashrc
-set -u
+module load openmpi/5.0.5-vzxfkrh openfoam
 ```
 
-Load the modules after the usual
+Run this after the usual
 [module setup lines](boole_hpc_platform_guide.md#loading-software-with-modules).
 After this, OpenFOAM commands such as `blockMesh` and `icoFoam` work, and
 `$FOAM_TUTORIALS` points to the example cases that ship with OpenFOAM.
 OpenFOAM is built for the `physical` nodes' processors, so run it there.
+
+(If `module load openfoam` says the module exists "but cannot be loaded as
+requested", the MPI module is missing or was loaded after it.
+`module spider openfoam` shows which modules to load first.)
 
 ## How OpenFOAM Runs in Parallel
 
@@ -158,8 +159,7 @@ why.
 
 ## Checklist
 
-- [ ] `module load openmpi/5.0.5-vzxfkrh`, then source OpenFOAM's
-      `etc/bashrc` (not `module load openfoam`).
+- [ ] `module load openmpi/5.0.5-vzxfkrh openfoam` (the MPI first).
 - [ ] `numberOfSubdomains` = number of ranks, `method scotch`.
 - [ ] Solver started with `srun --mpi=pmix_v5 <solver> -parallel`.
 - [ ] One node, 8 ranks, `--hint=nomultithread`, unless a test showed more

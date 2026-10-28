@@ -30,12 +30,8 @@ module unuse /opt/spack/spack/share/spack/lmod/linux-ubuntu22.04-x86_64/Core
 module use /opt/spack/spack/share/spack/lmod/linux-ubuntu24.04-x86_64/Core
 # --- end of module setup ---
 
-module load openmpi/5.0.5-vzxfkrh   # the MPI build OpenFOAM was compiled with
-# The openfoam module doesn't load on Boole at the moment, so use OpenFOAM's own
-# setup script. It reads unset variables, so relax `set -u` around it.
-set +u
-source /opt/spack/spack/opt/spack/linux-cascadelake/openfoam-2412-apc5rmqfcstzgka25loohisejf6flusj/etc/bashrc
-set -u
+# OpenFOAM is listed under the MPI it was built with: load that MPI first.
+module load openmpi/5.0.5-vzxfkrh openfoam
 
 SOLVER=simpleFoam                    # CHANGE: your solver (icoFoam, pimpleFoam, interFoam, ...)
 
