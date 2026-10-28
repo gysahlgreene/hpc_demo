@@ -50,10 +50,14 @@ def main():
     args = parser.parse_args()
 
     logical, cores = cpu_info()
-    print(f"os.cpu_count()             = {os.cpu_count()}  <- every CPU on the node, not yours")
-    print(f"logical CPUs you may use   = {logical}")
-    print(f"physical cores behind them = {cores}")
-    print(f"SLURM_CPUS_PER_TASK        = {os.environ.get('SLURM_CPUS_PER_TASK', 'not set')}")
+    if cores is None or cores == logical:
+        mine = f"{logical} CPU core(s)"
+    else:
+        mine = f"{cores} physical cores ({logical} hyperthreads)"
+    print(f"os.cpu_count() = {os.cpu_count()}: every CPU on this node, not just yours.")
+    print(f"This job may use: {mine}.")
+    print(f"SLURM_CPUS_PER_TASK = {os.environ.get('SLURM_CPUS_PER_TASK', 'not set')}, "
+          f"so this program uses up to {args.workers} worker process(es).")
     print()
 
     counts = [args.workers]

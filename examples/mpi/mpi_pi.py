@@ -12,10 +12,6 @@ from concurrent.futures import ThreadPoolExecutor
 import numpy as np
 from mpi4py import MPI
 
-# Rectangles per numpy call. Small enough that each call's arrays stay in the CPU
-# cache: 1_000_000 runs twice as slow and stops scaling within a node (see the guide).
-CHUNK = 32_768
-
 
 def chunk_sum(start, stop, h):
     x = (np.arange(start, stop, dtype=np.float64) + 0.5) * h
@@ -27,19 +23,21 @@ rank = comm.Get_rank()
 size = comm.Get_size()
 
 parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument("--n", type=int, default=4_000_000_000, help="number of rectangles")
+parser.add_argument("--n", type=int, default=2_000_000_000, help="number of rectangles")
+# Small chunks scale best across MPI ranks; threads need bigger ones (guide section 8).
+parser.add_argument("--chunk", type=int, default=32_768, help="rectangles per numpy call")
 args = parser.parse_args()
 
 # Usual pattern: rank 0 decides the input (here it just parsed it), then shares it.
 n = comm.bcast(args.n if rank == 0 else None, root=0)
 
 # Threads per rank: 1 for pure MPI, SLURM_CPUS_PER_TASK for hybrid jobs.
-# numpy releases the GIL during array maths, but threads queue for it between calls.
+# numpy releases Python's GIL while it computes, so threads overlap only during numpy calls.
 threads = int(os.environ.get("SLURM_CPUS_PER_TASK", "1"))
 
 # This rank's share of the rectangles, cut into chunks for the threads.
 first, last = n * rank // size, n * (rank + 1) // size
-chunks = [(start, min(start + CHUNK, last)) for start in range(first, last, CHUNK)]
+chunks = [(start, min(start + args.chunk, last)) for start in range(first, last, args.chunk)]
 
 comm.Barrier()  # start the clock together
 start_time = MPI.Wtime()

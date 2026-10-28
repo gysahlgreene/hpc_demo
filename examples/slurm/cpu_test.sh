@@ -1,9 +1,9 @@
 #!/bin/bash -l
 #SBATCH --job-name=cpu_test
 #SBATCH --output=cpu_test_%j.out
-#SBATCH --partition=physical
-#SBATCH --cpus-per-task=4
-#SBATCH --mem=8G
+#SBATCH --partition=cloud
+#SBATCH --cpus-per-task=2
+#SBATCH --mem=2G
 #SBATCH --time=00:10:00
 
 set -euo pipefail
@@ -21,7 +21,7 @@ fi
 module purge
 module unuse /opt/spack/spack/share/spack/lmod/linux-ubuntu22.04-x86_64/Core
 module use /opt/spack/spack/share/spack/lmod/linux-ubuntu24.04-x86_64/Core
-module load gcc-runtime/13.2.0
+module load python/3.11.9
 
 echo "Running on host: $(hostname)"
 echo "Job ID: ${SLURM_JOB_ID:-not-running-under-slurm}"

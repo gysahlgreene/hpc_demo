@@ -2,9 +2,9 @@
 # Strong-scaling study: run the same MPI problem on 1, 2, 4, ... 32 ranks
 # and print speedup and parallel efficiency.
 #
-#   sbatch mpi_scaling.slurm                 # mpi_pi.py (little communication)
-#   sbatch mpi_scaling.slurm mpi_heat.py     # halo exchange every step
-#   sbatch mpi_scaling.slurm mpi_heat.py --n 200000
+#   sbatch examples/mpi/mpi_scaling.slurm                 # mpi_pi.py (little communication)
+#   sbatch examples/mpi/mpi_scaling.slurm mpi_heat.py     # halo exchange every step
+#   sbatch examples/mpi/mpi_scaling.slurm mpi_heat.py --n 200000
 #
 # This uses every node in the physical partition, so keep runs short.
 #SBATCH --job-name=mpi-scaling

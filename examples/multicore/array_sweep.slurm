@@ -7,7 +7,7 @@
 #SBATCH --array=1-6
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=1G
-#SBATCH --time=00:05:00
+#SBATCH --time=00:02:00
 #SBATCH --output=array-sweep-%A_%a.out
 
 set -euo pipefail
@@ -40,3 +40,5 @@ fi
 N=$(( 10 ** SLURM_ARRAY_TASK_ID ))
 echo "Array job ${SLURM_ARRAY_JOB_ID}, task ${SLURM_ARRAY_TASK_ID} on $(hostname): n=${N}"
 python3 "$APP" --n "$N"
+
+sleep 30  # Only so the tasks stay in squeue long enough to watch. Remove in real work.

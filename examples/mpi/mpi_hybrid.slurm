@@ -1,5 +1,6 @@
 #!/bin/bash -l
 # Hybrid MPI x threads: 2 nodes x 2 ranks per node x 4 threads per rank = 16 cores.
+# Extra arguments go to mpi_pi.py, e.g. `sbatch examples/mpi/mpi_hybrid.slurm --chunk 262144`.
 #SBATCH --job-name=mpi-hybrid
 #SBATCH --partition=physical
 #SBATCH --nodes=2
@@ -48,4 +49,4 @@ export PMIX_MCA_psec=native
 # Passed explicitly because some Slurm versions don't hand --cpus-per-task from sbatch on to srun.
 srun --mpi=pmix_v5 --cpus-per-task="$SLURM_CPUS_PER_TASK" python3 "${APP_DIR}/mpi_hello.py"
 echo
-srun --mpi=pmix_v5 --cpus-per-task="$SLURM_CPUS_PER_TASK" python3 "${APP_DIR}/mpi_pi.py"
+srun --mpi=pmix_v5 --cpus-per-task="$SLURM_CPUS_PER_TASK" python3 "${APP_DIR}/mpi_pi.py" "$@"

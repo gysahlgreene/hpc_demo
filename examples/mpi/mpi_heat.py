@@ -20,7 +20,7 @@ size = comm.Get_size()
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("--n", type=int, default=8_000_000, help="number of cells")
-parser.add_argument("--steps", type=int, default=500, help="time steps")
+parser.add_argument("--steps", type=int, default=250, help="time steps")
 args = parser.parse_args()
 n, steps = args.n, args.steps
 

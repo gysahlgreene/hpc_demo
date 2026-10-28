@@ -1,6 +1,6 @@
 #!/bin/bash -l
 # One program using several cores on one node, timed with 1, 2, 4 and 8 workers.
-# Extra arguments go to pool_pi.py, e.g. `sbatch pool_pi.slurm --n 10000000`.
+# Extra arguments go to pool_pi.py, e.g. `sbatch examples/multicore/pool_pi.slurm --workers 1`.
 #SBATCH --job-name=pool-pi
 #SBATCH --partition=physical
 #SBATCH --nodes=1

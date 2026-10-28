@@ -11,24 +11,23 @@ happens. All the sample output in the guides comes from real runs on Boole.
 ## Who It Is For
 
 Researchers and students who can run a Python script on their own computer and
-now want to run it on HPC. You don't need to know Slurm or MPI beforehand. The
-examples are in Python, but the ideas apply to any language.
+now want to run it on HPC. You need basic shell commands (`cd`, `ls`, `cat`).
+You don't need to know Slurm or MPI beforehand. The examples are in Python,
+but the ideas apply to any language.
 
 ## What You Will Learn
 
-| # | By the end you can... | Read | Run | Exercise |
-| --- | --- | --- | --- | --- |
-| 1 | Submit, monitor and cancel interactive and batch jobs, and request CPUs, memory and time | [Platform guide](docs/boole_hpc_platform_guide.md#slurm-basics) | `examples/slurm/` | 1-4 |
-| 2 | Tell real cores from hyperthreads, and request whole cores on the `physical` nodes | [Parallel guide §1-3](docs/parallel_computing_guide.md#1-know-your-hardware) | `examples/mpi/mpi_demo.slurm` | 1, 5 |
-| 3 | Use every core you asked for on one node, sizing your program from the allocation | [§4](docs/parallel_computing_guide.md#4-many-cores-on-one-node) | `examples/multicore/pool_pi.slurm` | 6 |
-| 4 | Run hundreds of independent jobs (parameter sweeps, many files) with job arrays | [§5](docs/parallel_computing_guide.md#5-many-independent-jobs-job-arrays) | `examples/multicore/array_sweep.slurm` | 7 |
-| 5 | Run MPI programs across nodes with `srun`, check where ranks run, and pass messages between them | [§6](docs/parallel_computing_guide.md#6-many-nodes-mpi) | `examples/mpi/` | 5, 11 |
-| 6 | Measure speedup and efficiency, and choose how many cores to use | [§7](docs/parallel_computing_guide.md#7-scaling-does-more-cores-mean-faster) | `examples/mpi/mpi_scaling.slurm` | 8 |
-| 7 | Lay out hybrid jobs (MPI ranks x threads), and know when they pay off | [§8](docs/parallel_computing_guide.md#8-hybrid-mpi-and-threads) | `examples/mpi/mpi_hybrid.slurm` | 9 |
-| 8 | Check whether a finished job used the CPUs and memory it reserved | [§9](docs/parallel_computing_guide.md#9-was-my-job-efficient) | `sacct` | 4, 10 |
-| 9 | Run a GPU job and an Apptainer container (short introductions) | [GPU](docs/boole_hpc_platform_guide.md#batch-gpu-job), [containers](docs/boole_hpc_platform_guide.md#running-docker-images-with-apptainer-on-hpc) | `examples/gpu/`, `examples/containers/` | 12 |
-
-The exercises are in [exercises/README.md](exercises/README.md).
+| # | By the end you can... | Read | Exercise |
+| --- | --- | --- | --- |
+| 1 | Submit, monitor and cancel interactive and batch jobs, and request CPUs, memory and time | [Slurm Basics](docs/boole_hpc_platform_guide.md#slurm-basics) | 1-4 |
+| 2 | Tell real cores from hyperthreads, and request whole cores on the `physical` nodes | [Parallel guide §1-3](docs/parallel_computing_guide.md#1-know-your-hardware) | 1, 5, 8 |
+| 3 | Use every core you asked for on one node, sizing your program from the allocation | [§4](docs/parallel_computing_guide.md#4-many-cores-on-one-node) | 5 |
+| 4 | Run hundreds of independent jobs (parameter sweeps, many files) with job arrays | [§5](docs/parallel_computing_guide.md#5-many-independent-jobs-job-arrays) | 6 |
+| 5 | Check whether a job used the CPUs and memory it reserved | [§9](docs/parallel_computing_guide.md#9-was-my-job-efficient) | 4, 7 |
+| 6 | Run MPI programs across nodes with `srun`, check where ranks run, and pass messages between them | [§6](docs/parallel_computing_guide.md#6-many-nodes-mpi) | 8, 11 |
+| 7 | Measure speedup and efficiency, and choose how many cores to use | [§7](docs/parallel_computing_guide.md#7-scaling-does-more-cores-mean-faster) | 9 |
+| 8 | Lay out hybrid jobs (MPI ranks x threads), and know when they pay off | [§8](docs/parallel_computing_guide.md#8-hybrid-mpi-and-threads) | 10 |
+| 9 | Run a GPU job and an Apptainer container (optional) | [GPU](docs/boole_hpc_platform_guide.md#batch-gpu-job), [containers](docs/boole_hpc_platform_guide.md#running-docker-images-with-apptainer) | 12, 13 |
 
 The core of the workshop is rows 2-8: **getting the most out of the CPUs you
 request.** Asking for more cores never makes a program faster by itself. These
@@ -42,91 +41,60 @@ it does.
   examples are Python.
 - Managing or administering the cluster.
 
-## Quick Start
+## How to Start
 
-Open a terminal on Boole, for example through **Boole Shell Access** in the CloudCIX dashboard, and run:
-
-```bash
-git clone https://github.com/gysahlgreene/hpc_demo.git
-cd hpc_demo
-```
-
-If you already have this repository:
-
-```bash
-git pull
-```
-
-## Workshop Flow
-
-1. Read the platform overview in [docs/boole_hpc_platform_guide.md](docs/boole_hpc_platform_guide.md),
-   then [docs/parallel_computing_guide.md](docs/parallel_computing_guide.md)
-   for using many cores and nodes.
-2. Try an interactive Slurm allocation:
+1. Open a terminal on Boole, for example through **Boole Shell Access** at
+   <https://hpc.cloudcix.com>.
+2. Get the workshop files into your home directory:
 
    ```bash
-   srun --partition=cloud --cpus-per-task=2 --mem=4G --time=01:00:00 --pty bash
+   cd ~
+   git clone https://github.com/gysahlgreene/hpc_demo.git
+   cd ~/hpc_demo
    ```
 
-3. Submit the CPU batch example:
+   If you cloned it before, update it instead with
+   `cd ~/hpc_demo && git pull`. If `git pull` complains about local changes,
+   run `git stash` and then `git pull` again.
+3. Allow about two and a half hours, including reading.
+4. Open [exercises/README.md](exercises/README.md) and work through it in
+   order. Each exercise links to the part of the guides to read first.
 
-   ```bash
-   sbatch examples/slurm/cpu_test.sh
-   squeue -u "$USER"
-   cat cpu_test_<jobid>.out
-   ```
+Run every command from `~/hpc_demo`. Output files appear there.
 
-4. Use many cores on one node, then many independent jobs:
+## Words You Will Meet
 
-   ```bash
-   cd examples/multicore
-   sbatch pool_pi.slurm
-   sbatch array_sweep.slurm
-   cd ../..
-   ```
-
-5. Run MPI across nodes, then measure how it scales:
-
-   ```bash
-   cd examples/mpi
-   sbatch mpi_demo.slurm
-   sbatch mpi_scaling.slurm
-   sbatch mpi_scaling.slurm mpi_heat.py
-   sbatch mpi_hybrid.slurm
-   cd ../..
-   ```
-
-   The MPI jobs load `openmpi/5.0.5`, `python/3.11.9`, `py-mpi4py/4.0.1`,
-   and `py-numpy/2.1.2` inside the batch script. The
-   [Parallel Computing Guide](docs/parallel_computing_guide.md) explains
-   these examples step by step, with real output from Boole.
-
-6. If GPU nodes are available to you, submit the GPU example:
-
-   ```bash
-   sbatch examples/gpu/gpu_test.sh
-   cat gpu_test_<jobid>.out
-   ```
-
-   The GPU job prints `nvidia-smi` and `nvcc --version` from the allocated GPU
-   node.
-
-7. Explore the container example when that topic comes up in the presentation.
+| Word | Meaning |
+| --- | --- |
+| **Login node** | The machine your terminal opens on. Shared by everyone; for editing and submitting, not heavy work. |
+| **Compute node** | A machine that runs jobs. |
+| **Slurm** | The scheduler that queues jobs and gives them compute nodes. |
+| **Partition** | A queue for one type of node: `cloud`, `physical` or `physical-gpu`. |
+| **Job / job ID** | One request to Slurm, and the number `sbatch` gives it. |
+| **Module** | A piece of installed software you switch on with `module load`. |
+| **Socket** | One physical processor chip in a node. A node can have more than one. |
+| **Core** | One independent processing unit in a processor. |
+| **Hyperthread** | Half of a core that the system shows as a separate CPU. Not as fast as a real core. |
+| **Process / thread** | A running program with its own memory / a second line of work inside one process, sharing its memory. |
+| **Task / rank** | One copy of your program started by Slurm. In MPI it is called a rank. |
+| **MPI** | The standard way for processes on different nodes to cooperate by sending messages. |
+| **Speedup / efficiency** | How many times faster with N cores / speedup divided by N (100% is perfect). |
 
 ## Repository Layout
 
 ```text
 .
 ├── docs/
-│   ├── boole_hpc_platform_guide.md
-│   └── parallel_computing_guide.md
+│   ├── boole_hpc_platform_guide.md   # Slurm basics, modules, GPUs, containers
+│   └── parallel_computing_guide.md   # cores, arrays, MPI, scaling, efficiency
 ├── examples/
-│   ├── containers/
-│   ├── gpu/
-│   ├── mpi/          # MPI demo, scaling study, hybrid job
+│   ├── slurm/        # first batch job, email notification
 │   ├── multicore/    # one node, many cores; job arrays
-│   └── slurm/
+│   ├── mpi/          # MPI demo, scaling study, hybrid job
+│   ├── gpu/
+│   └── containers/
 └── exercises/
+    └── README.md     # start here
 ```
 
 ## Common Slurm Commands
@@ -134,24 +102,26 @@ git pull
 ```bash
 sinfo                         # Show partitions and node state
 squeue -u "$USER"             # Show your jobs
-sbatch path/to/script.sh       # Submit a batch job
-scancel <jobid>                # Cancel a job
-scontrol show job <jobid>      # Detailed job information
-sacct -j <jobid>               # Accounting information after completion
+sbatch path/to/script.sh      # Submit a batch job
+scancel <jobid>               # Cancel a job
+scontrol show job <jobid>     # Detailed job information
+sacct -j <jobid>              # Accounting information after completion
 ```
 
-## Notes for Participants
+## Notes for Instructors
 
-The examples request modest resources, but cluster availability changes during
-the day. If a job sits pending, try the troubleshooting section in the guide:
-check `sinfo`, reduce resources, shorten the time limit, or use a different
-partition where appropriate.
+The cluster has 2 `cloud` nodes (16 cores), 4 `physical` nodes (32 cores) and
+2 GPUs, so plan for a full room:
 
-`mpi_scaling.slurm` takes all four `physical` nodes for about a minute and a
-half. In a busy session, have one person run it and share the output.
-
-The Slurm scripts use `SLURM_SUBMIT_DIR`, which is the directory where you ran
-`sbatch`. Submit from the repo root or from the example directory shown in the
-workshop flow.
+- Exercise 9 (`mpi_scaling.slurm`) holds all four `physical` nodes for up to a
+  minute per run. Run it yourself as a demo and share the output.
+- Exercise 10 runs use 2 `physical` nodes each. Have each table split the
+  layouts between them.
+- Exercise 12 needs a GPU, and there are only two.
+- Everything else is small, but expect some queueing when 20 people submit
+  at once.
+- Every script, command and exercise answer was tested on Boole in October
+  2026. If the software modules change, update the `module load` lines in
+  `examples/` and the guides.
 
 Do not put credentials in this repository.
