@@ -4,6 +4,7 @@
 
 - [Introduction](#introduction)
 - [Slurm Basics](#slurm-basics)
+- [Parallel Computing Guide](parallel_computing_guide.md) (separate page)
 - [Conda / Miniforge](#conda--miniforge)
 - [Running Docker Images with Apptainer on HPC](#running-docker-images-with-apptainer-on-hpc)
 - [Quick Reference](#quick-reference)
@@ -86,7 +87,7 @@ tree.
 | Partition | Use |
 | --- | --- |
 | `cloud` | Virtualized cloud infrastructure. Suitable for smaller or flexible workloads. |
-| `physical` | Dedicated bare-metal compute nodes. Use this for high-performance CPU jobs. |
+| `physical` | Dedicated bare-metal compute nodes. Use this for high-performance CPU jobs. Each node has 8 cores shown as 16 hyperthread CPUs; see the [Parallel Computing Guide](parallel_computing_guide.md#hyperthreads-are-not-cores). |
 | `physical-gpu` | Bare-metal nodes with GPUs, such as NVIDIA A100. Use this for GPU-accelerated workloads. |
 
 ### Available Resources
@@ -148,124 +149,33 @@ Submit it:
 sbatch examples/gpu/gpu_test.sh
 ```
 
-### MPI Demonstration with Slurm
+### Parallel Jobs and MPI
 
-MPI is a standard for parallel computing. It allows multiple processes to
-communicate while running across one or more compute nodes.
+To use more than one core, or more than one node, see the
+[Parallel Computing Guide](parallel_computing_guide.md). It covers:
 
-In this example, we will:
+- How cores, hyperthreads and nodes map to Slurm options on each partition.
+- Using many cores on one node, and running many jobs with job arrays.
+- MPI, scaling studies, hybrid jobs, and checking whether a job used what it
+  asked for.
 
-- Create a simple MPI application.
-- Submit the application to Slurm.
-- Run MPI tasks across multiple nodes.
-- Verify that MPI ranks are distributed across the allocated nodes.
-
-#### Prerequisites
-
-Ensure the following are available:
-
-- Python 3
-- OpenMPI or another MPI implementation
-- `mpi4py`
-
-On Boole, the example Slurm script loads the expected modules for you:
-
-```bash
-module purge
-module unuse /opt/spack/spack/share/spack/lmod/linux-ubuntu22.04-x86_64/Core
-module use /opt/spack/spack/share/spack/lmod/linux-ubuntu24.04-x86_64/Core
-module load openmpi/5.0.5
-module load python/3.11.9
-module load py-mpi4py/4.0.1
-```
-
-If you are testing `mpi_hello.py` manually outside the Slurm script, load those
-modules first.
-
-#### Create the MPI Application
-
-The runnable MPI application is `examples/mpi/mpi_hello.py`.
-
-It:
-
-- Retrieves the MPI rank, or process number.
-- Retrieves the total number of MPI processes.
-- Prints the hostname on which each rank is running.
-
-#### Create the Slurm Job Script
-
-The runnable Slurm script is `examples/mpi/mpi_demo.slurm`.
-
-This configuration launches a total of **8 MPI ranks** across **2 nodes**.
-The script loads `openmpi/5.0.5`, `python/3.11.9`, and `py-mpi4py/4.0.1` before
-calling `mpirun`.
-
-#### Submit the MPI Job
-
-Submit the job to Slurm:
+To check that MPI works for you, submit the demo:
 
 ```bash
 cd examples/mpi
 sbatch mpi_demo.slurm
+cat mpi-demo-<jobid>.out
 ```
 
-#### Monitor the MPI Job
-
-Check the job status:
-
-```bash
-squeue -u $USER
-```
-
-#### View the Results
-
-Once the job has completed:
-
-```bash
-cat mpi-demo-*.out
-```
-
-Example output:
+It starts 8 MPI ranks on 2 `physical` nodes with `srun`. Each rank prints its
+node and the CPUs it is pinned to:
 
 ```text
-Running MPI demo
-Nodes allocated:
-pcpt01
-pcpt02
-
-Hello from rank 0 of 8 on pcpt01
-Hello from rank 1 of 8 on pcpt01
-Hello from rank 2 of 8 on pcpt01
-Hello from rank 3 of 8 on pcpt01
-Hello from rank 4 of 8 on pcpt02
-Hello from rank 5 of 8 on pcpt02
-Hello from rank 6 of 8 on pcpt02
-Hello from rank 7 of 8 on pcpt02
+Hello from rank 0 of 8 on h17u22.boole.cloudcix.com (cpus [1])
+Hello from rank 1 of 8 on h17u22.boole.cloudcix.com (cpus [3])
+...
+Hello from rank 7 of 8 on h17u25.boole.cloudcix.com (cpus [6])
 ```
-
-This demonstrates that:
-
-- Slurm allocated two compute nodes.
-- MPI launched eight parallel processes.
-- The MPI ranks were distributed across both nodes.
-
-#### Scaling the Example
-
-To run across more nodes or launch more MPI processes, modify the Slurm
-directives.
-
-For example:
-
-```bash
-#SBATCH --nodes=4
-#SBATCH --ntasks-per-node=8
-```
-
-This configuration launches:
-
-- 4 compute nodes
-- 8 MPI ranks per node
-- 32 total MPI processes
 
 ### Monitoring Jobs
 
@@ -529,7 +439,12 @@ The runnable Slurm example is `examples/containers/apptainer_hello.slurm`.
 | Resource Type | Slurm Option | Example |
 | --- | --- | --- |
 | CPU cores | `--cpus-per-task=N` | `--cpus-per-task=4` |
-| Memory | `--mem=XG` | `--mem=16G` |
+| Nodes | `--nodes=N` | `--nodes=2` |
+| Tasks (MPI ranks) | `--ntasks=N` or `--ntasks-per-node=N` | `--ntasks-per-node=8` |
+| Whole cores only (`physical`) | `--hint=nomultithread` | `--hint=nomultithread` |
+| Memory per node | `--mem=XG` | `--mem=16G` |
+| Memory per CPU | `--mem-per-cpu=XG` | `--mem-per-cpu=2G` |
+| Job array | `--array=RANGE` | `--array=1-100%10` |
 | GPUs | `--gres=gpu:N` | `--gres=gpu:2` |
 | Time limit | `--time=HH:MM:SS` | `--time=02:30:00` |
 | Partition | `--partition=NAME` | `--partition=physical-gpu` |

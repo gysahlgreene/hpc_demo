@@ -1,8 +1,9 @@
 #!/bin/bash -l
 #SBATCH --job-name=mpi-demo
-#SBATCH --partition=cloud
+#SBATCH --partition=physical
 #SBATCH --nodes=2
 #SBATCH --ntasks-per-node=4
+#SBATCH --hint=nomultithread
 #SBATCH --time=00:05:00
 #SBATCH --output=mpi-demo-%j.out
 
